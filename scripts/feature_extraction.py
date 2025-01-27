@@ -67,15 +67,27 @@ with open(model_path, "rb") as f:
 new_data_path = "/Users/pavankumar/Desktop/pythonProject1/sequence_ml_project/data/sequence_features.csv"
 new_data = pd.read_csv(new_data_path)
 
-# Prepare the features and labels for cross-validation or testing
-X = new_data.drop(columns=["label"])  # Drop the label column to get features
-y = new_data["label"]  # Labels
+# Check for 'label' column
+print("Columns in new_data:", new_data.columns)
 
-# Apply cross-validation
-scores = cross_val_score(model, X, y, cv=5, scoring='accuracy')
-print("Cross-validation scores:", scores)
-print("Mean accuracy:", scores.mean())
+if "label" in new_data.columns:
+    X = new_data.drop(columns=["label"])  # Features
+    y = new_data["label"]  # Labels
+else:
+    print("Error: 'label' column not found in the dataset.")
+    X = new_data  # Use all columns as features
+    y = None
+    # Optionally exit or proceed depending on whether labels are essential
+    exit(1)
 
-# Make predictions
-predictions = model.predict(X)
-print("Predictions:", predictions)
+# Apply cross-validation (only if labels are available)
+if y is not None:
+    scores = cross_val_score(model, X, y, cv=5, scoring='accuracy')
+    print("Cross-validation scores:", scores)
+    print("Mean accuracy:", scores.mean())
+
+    # Make predictions
+    predictions = model.predict(X)
+    print("Predictions:", predictions)
+else:
+    print("Skipping cross-validation and predictions as labels are missing.")
